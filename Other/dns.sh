@@ -1,11 +1,29 @@
 #!/system/bin/sh
 #
-# Systemless keweon DNS Manager (Source : Systemless-DNS-Changer-v1.0)
-# Thanks to xda, tanu548@xda-developers and to all users who contribute
+alias touch="/sbin/.core/busybox/touch"
+. /sbin/.core/mirror/bin/util_functions.sh
+if [ -d /system/xbin ]
+then
+	bin=xbin
+else
+	bin=bin
+fi
+if grep -q 'beta' $core/system/$bin/midnight
+then
+	mm='MidnightMain(Beta)'
+else
+	mm=MidnightMain
+fi
 divider='======================================================' > /dev/null 2>&1
 magisk='/sbin/.core/img' > /dev/null 2>&1
 core=$magisk'/MidnightCore' > /dev/null 2>&1
 dns_stored=$core'/post-fs-data.sh' > /dev/null 2>&1
+DNS=/sdcard/$mm/MidnightDNS
+DNSLIST=$DNS/DNSList.txt
+if [ ! -d $DNS ]
+then
+	mkdir $DNS
+fi
 #
 BL='\e[01;90m' > /dev/null 2>&1; # Black
 R='\e[01;91m' > /dev/null 2>&1; # Red
@@ -17,225 +35,177 @@ C='\e[01;96m' > /dev/null 2>&1; # Cyan
 W='\e[01;97m' > /dev/null 2>&1; # White
 N='\e[0m' > /dev/null 2>&1; # Null
 #
-. /sbin/.core/mirror/bin/util_functions.sh
-while :
-do
-# Magisk partition mounting...
-mount_magisk_img
-# DNS Remover
-DNS_line_remover ( ) {
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.76.125.130:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.76.125.130:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.77.62.37:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.77.62.37:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 213.32.112.244:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 213.32.112.244:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 104.207.131.11:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 104.207.131.11:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.77.25.72:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.77.25.72:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.77.138.206:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.77.138.206:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.76.151.221:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.76.151.221:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.32.183.39:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.32.183.39:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.76.57.41:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.76.57.41:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.77.144.132:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.77.144.132:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.32.140.26:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.32.140.26:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 139.59.33.236:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 139.59.33.236:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 208.67.222.222:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 208.67.222.222:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 176.103.130.130:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 176.103.130.130:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 8.8.8.8:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 8.8.8.8:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 1.1.1.1:53/d' $dns_stored
-		sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 1.1.1.1:53/d' $dns_stored
+set_dns() {
+	clear
+	echo -e $W'Follow the instructions below'$N
+	echo -e $W'You will be prompted to enter 2 DNS addresses.'$N
+	echo -e $W'If you only know one, enter the same one twice'$N
+	sd=0
+	while [ $sd != 1 ]
+	do
+		echo -e $G'Enter DNS 1:'$N
+		read -r DNS_1
+		echo -e $G'Enter DNS 2:'$N
+		read -r DNS_2
+		echo -e $W'You entered:'$N
+		echo -e $G"DNS 1: $DNS_1"$N
+		echo -e $G"DNS 2: $DNS_2"$N
+		echo -e $W'Is this correct?(y/n)'$N
+		read -r DCHECK
+		case $DCHECK in
+			y)
+				export DNS_1
+				export DNS_2
+				sd=$((sd + 1))
+				;;
+			n)
+				;;
+			*)
+				;;
+		esac
+	done
 }
-# DNS checker...
-if grep -q 45.76.125.130 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Keweon Australia/Sydney DNS'$N
-elif grep -q 45.77.62.37 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Keweon France/Paris DNS'$N
-elif grep -q 213.32.112.244 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Keweon France/Roubaix DNS'$N
-elif grep -q 104.207.131.11 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Keweon Germany/FFM DNS'$N
-elif grep -q 45.77.25.72 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Keweon Japan/Tokyo DNS'$N
-elif grep -q 45.77.138.206 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Keweon Netherland/Amsterdam DNS'$N
-elif grep -q 45.76.151.221 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Keweon Singapore/Singapore DNS'$N
-elif grep -q 45.32.183.39 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Keweon UK/London DNS'$N
-elif grep -q 45.76.57.41 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Keweon USA/Dallas DNS'$N
-elif grep -q 45.77.144.132 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Keweon USA/New Jersey DNS'$N
-elif grep -q 45.32.140.26 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Keweon USA/Silicon Valley DNS'$N
-elif grep -q 139.59.33.236 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Keweon India/Bangalore DNS'$N
-elif grep -q 208.67.222.222 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Open DNS'$N
-elif grep -q 176.103.130.130 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Adguard  DNS'$N
-elif grep -q 8.8.8.8 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'Google DNS'$N
-elif grep -q 1.1.1.1 $dns_stored > /dev/null 2>&1
-then
-	current_dns=$G'CloudFlare DNS'$N
-else
-	current_dns=$B'Default'$N
-fi
+DNS_line_remover ( ) {
+	sed -i '/iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination /d' $dns_stored
+	sed -i '/iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination /d' $dns_stored
+	sed -i "/setprop dhcp.wlan0.dns1 /d" $dns_stored
+	sed -i "/setprop dhcp.wlan0.dns2 /d" $dns_stored
+	sed -i "/setprop net.eth0.dns1 /d" $dns_stored
+	sed -i "/setprop net.eth0.dns2 /d" $dns_stored
+	sed -i "/setprop setprop net.dns1 /d" $dns_stored
+	sed -i "/setprop setprop net.dns2 /d" $dns_stored
+	sed -i "/setprop net.ppp0.dns1 /d" $dns_stored
+	sed -i "/setprop net.ppp0.dns2 /d" $dns_stored
+	sed -i "/setprop net.rmnet0.dns1 /d" $dns_stored
+	sed -i "/setprop net.rmnet0.dns2 /d" $dns_stored
+	sed -i "/setprop net.pdpbr1.dns1 /d" $dns_stored
+	sed -i "/setprop net.pdpbr1.dns2 /d" $dns_stored
+}
+DNS_line_adder() {
+	echo "setprop dhcp.wlan0.dns1 $DNS_1" >> $dns_stored
+	echo "setprop dhcp.wlan0.dns2 $DNS_2" >> $dns_stored
+	echo "setprop net.eth0.dns1 $DNS_1" >> $dns_stored
+	echo "setprop net.eth0.dns2 $DNS_2" >> $dns_stored
+	echo "setprop setprop net.dns1 $DNS_1" >> $dns_stored
+	echo "setprop setprop net.dns2 $DNS_2" >> $dns_stored
+	echo "setprop net.ppp0.dns1 $DNS_1" >> $dns_stored
+	echo "setprop net.ppp0.dns2 $DNS_2" >> $dns_stored
+	echo "setprop net.rmnet0.dns1 $DNS_1" >> $dns_stored
+	echo "setprop net.rmnet0.dns2 $DNS_2" >> $dns_stored
+	echo "setprop net.pdpbr1.dns1 $DNS_1" >> $dns_stored
+	echo "setprop net.pdpbr1.dns2 $DNS_2" >> $dns_stored
+	echo "iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination $DNS_1:53" >> $dns_stored
+	echo "iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination $DNS_2:53" >> $dns_stored
+}
+apply_dns() {
+	DNS_line_remover
+	DNS_line_adder
+}
+save_choice() {
+	clear
+	echo -e $W'Would you lkke to save this address for later use?(y/n)'$N
+	read -r SAVE_CHOICE
+	case $SAVE_CHOICE in
+		y)
+			if [ -f $DNSLIST ]
+			then
+				if grep -q $DNS_1 $DNSLIST || grep -q $DNS_2 $DNSLIST
+				then
+					echo -e $C'This DNS is already saved!'$N
+				else
+					dnsCount="$( cat $DNSLIST | wc -l )"
+					newDnsC=$((dnsCount + 1))
+					echo -e $G'Please name this DNS:'$N
+					read -r dnsname
+					echo -e $P'Saving DNS...'$N
+					sleep 2
+					echo "$newDnsC) $dnsname:$DNS_1:$DNS_2" >> $DNSLIST
+					echo -e $G"DNS saved!"$N
+				fi
+			else
+				touch $DNSLIST
+				echo -e $G'Please name this DNS:'$N
+				read -r dnsname
+				echo -e $P'Saving DNS...'$N
+				echo "1) $dnsname:$DNS_1:$DNS_2" >> $DNSLIST
+				echo -e $G"$dnsname saved!"$N
+				sleep 3
+			fi
+			;;
+		n)
+			;;
+		*)
+			;;
+	esac
+}
+checkDNS() {
+	if grep -q iptables $dns_stored
+	then
+		dnName="$( grep tcp $dns_stored | cut -d ' ' -f 13 )"
+		dnName2="$( echo $dnName | cut -d ':' -f 1 )"
+		if [ -f $DNSLIST ]
+		then
+			dnName3="$( grep $dnName2 $DNSLIST | cut -d ':' -f 1 )"
+			dnName4="$( echo $dnName3 | cut -d ' ' -f 2 )"
+			current_dns=$dnName4
+		else
+			current_dns='Unknown'
+		fi
+	else
+		current_dns='Default'
+	fi
+}
+while true
+do
+checkDNS
 clear
 echo -e $Y"$divider"$N
-echo -e $G" MidnightDNS: By OldMidnight & Bhaskarjy0ti(@XDA) "$N
-echo -e $C"Credits to @Bhaskarjyoti for letting me maintain this!"$N
+echo -e $G" MidnightDNS: By OldMidnight "$N
 echo -e $Y"$divider"$N
-echo -e $W'CURRENT :'$N $current_dns
-echo -e $W'1. Keweon Australia/Sydney DNS'$N
-echo -e $W'2. Keweon France/Paris DNS'$N
-echo -e $W'3. Keweon France/Roubaix DNS'$N
-echo -e $W'4. Keweon Germany/FFM DNS'$N
-echo -e $W'5. Keweon Japan/Tokyo DNS'$N
-echo -e $W'6. Keweon Netherland/Amsterdam DNS'$N
-echo -e $W'7. Keweon Singapore/Singapore DNS'$N
-echo -e $W'8. Keweon UK/London DNS'$N
-echo -e $W'9. Keweon USA/Dallas DNS'$N
-echo -e $W'10.Keweon USA/New Jersey DNS'$N
-echo -e $W'11.Keweon USA/Silicon Valley DNS'$N
-echo -e $W'12.Keweon India/Bangalore DNS'$N
-echo -e $W'13.Open DNS'$N
-echo -e $W'14.Adguard DNS'$N
-echo -e $W'15.Google DNS'$N
-echo -e $W'16.CloudFlare DNS'$N
-echo -e $W'17.Restore Default DNS'$N
+echo -e $W'CURRENT :'$N $G"$current_dns"$N
+echo -e $B'1. Set DNS address'$N
+echo -e $B'2. Choose from list'$N
+echo -e $W'3. Restore Default DNS'$N
 echo -e $W'0. Exit'$N
 echo -e $Y"$divider"$N
 echo -e -n $W'[CHOOSE] : '$N
-read -r DNS_ADDRESSED
-case $DNS_ADDRESSED in
+read -r DNS_CHOICE
+case $DNS_CHOICE in
 	1)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.76.125.130:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.76.125.130:53' >> $dns_stored
-	;;
+		mount_magisk_img
+		set_dns
+		apply_dns
+		save_choice
+		;;
 	2)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.77.62.37:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.77.62.37:53' >> $dns_stored
-	;;
+		if [ ! -e $DNSLIST ]
+		then
+			echo -e $R'You have no saved DNS addresses. Please save one before using this feature.'$N
+		else
+			loop="$( cat $DNSLIST | wc -l )"
+			var=0
+			while [ $var != $loop ]
+			do
+				var=$((var + 1))
+				catdns="$( cat $DNSLIST | xargs | cut -d ' ' -f $var )"
+				ds="$( echo $catdns | cut -d ':' -f 1 )"
+				echo -e $G"$ds"$N
+			done
+		fi
+		echo -e -n $W'[CHOOSE] : '$N
+		read -r OPTION
+		case $OPTION in
+			$OPTION)
+				catdns="$( cat $DNSLIST | xargs | cut -d ' ' -f $OPTION )"
+				DNS_1="$( echo $catdns | cut -d ':' -f 2 )"
+				DNS_2="$( echo $catdns | cut -d ':' -f 3 )"
+				mount_magisk_img
+				apply_dns
+				;;
+		esac
+		;;
 	3)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 213.32.112.244:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 213.32.112.244:53' >> $dns_stored
-	;;
-	4)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 104.207.131.11:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 104.207.131.11:53' >> $dns_stored
-	;;
-	5)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.77.25.72:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.77.25.72:53' >> $dns_stored
-	;;
-	6)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.77.138.206:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.77.138.206:53' >> $dns_stored
-	;;
-	7)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.76.151.221:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.76.151.221:53' >> $dns_stored
-	;;
-	8)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.32.183.39:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.32.183.39:53' >> $dns_stored
-	;;
-	9)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.76.57.41:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.76.57.41:53' >> $dns_stored
-	;;
-	10)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.77.144.132:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.77.144.132:53' >> $dns_stored
-	;;
-	11)
-	clear
-		cert
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 45.32.140.26:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 45.32.140.26:53' >> $dns_stored
-	;;
-	12)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 139.59.33.236:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 139.59.33.236:53' >> $dns_stored
-	;;
-	13)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 208.67.222.222:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 208.67.222.222:53' >> $dns_stored
-	;;
-	14)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 176.103.130.130:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 176.103.130.130:53' >> $dns_stored
-	;;
-	15)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 8.8.8.8:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 8.8.8.8:53' >> $dns_stored
-	;;
-	16)
-	clear
-		DNS_line_remover
-		echo 'iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination 1.1.1.1:53' >> $dns_stored
-		echo 'iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination 1.1.1.1:53' >> $dns_stored
-	;;
-	17)
-	clear
+		clear
 		DNS_line_remover
 	;;
 	0)
