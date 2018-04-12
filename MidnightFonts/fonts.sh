@@ -137,6 +137,9 @@ zip_sort_store () {
 		else
 			log_handler "Module folder not updated!"
 		fi
+    if [ ! -d $STOREFONT ]; then
+			mkdir $STOREFONT
+    fi
 		cp -f $STOREFONT/system/fonts/* $DIR/fonts
 		if [ $? == 0 ]
 		then

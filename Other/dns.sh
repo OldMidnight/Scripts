@@ -54,8 +54,8 @@ set_dns() {
 		read -r DCHECK
 		case $DCHECK in
 			y)
-				export DNS_1
-				export DNS_2
+				export $DNS_1
+				export $DNS_2
 				sd=$((sd + 1))
 				;;
 			n)
@@ -139,7 +139,7 @@ save_choice() {
 	esac
 }
 checkDNS() {
-	if grep -q iptables $dns_stored
+	if grep -q 'iptables' $dns_stored
 	then
 		dnName="$( grep tcp $dns_stored | cut -d ' ' -f 13 )"
 		dnName2="$( echo $dnName | cut -d ':' -f 1 )"
@@ -215,7 +215,6 @@ case $DNS_CHOICE in
 	echo -e $B"$divider"$N
 	sleep 1
 	unmount_magisk_img
-	exit 0
 	;;
 esac
 done

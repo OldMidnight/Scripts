@@ -130,12 +130,14 @@ zip_sort_store () {
 		echo "completing step 2..."
 		echo "Font being saved to $FONTBACK..."
 		log_handler "Saving font to $FONTBACK..."
-		if [ ! -d $DIR/fonts ]
+		if [ -d $DIR/fonts ]
 		then
+			rm -rf $DIR/fonts
 			mkdir $DIR/fonts
 			log_handler "Module folder updated"
 		else
-			log_handler "Module folder not updated!"
+			mkdir $DIR/fonts
+			log_handler "Module folder made"
 		fi
 		cp -rf $STOREFONT/system/fonts/* $DIR/fonts
 		if [ $? == 0 ]

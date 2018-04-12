@@ -366,19 +366,10 @@ sort_duplicates () {
 	then
 		mkdir $DIR/audio/alarms
 	fi
-	tmp_alarms=$TDIR/audio/alarms
 	orig_alarms=/system/media/audio/alarms
 	for orig_file in $orig_alarms/*
 	do
-		for tmp_file in $tmp_alarms/*
-		do
-			if [ "$tmp_file" == "$orig_file" ]
-			then
-				rm -f $tmp_file
-			else
-				cp -f $tmp_file $DIR/audio/alarms
-			fi
-		done
+		echo $orig_file >> $DIR/audio/alarms/.replace
 	done
 	echo "Done!"
 	echo "Sorting Duplicate notification files..."
@@ -386,19 +377,10 @@ sort_duplicates () {
 	then
 		mkdir $DIR/audio/notifications
 	fi
-	tmp_notifs=$TDIR/audio/notifications
 	orig_notifs=/system/media/audio/notifications
 	for orig_file in $orig_notifs/*
 	do
-		for tmp_file in $tmp_notifs/*
-		do
-			if [ "$tmp_file" == "$orig_file" ]
-			then
-				rm -f $tmp_file
-			else
-				cp -f $tmp_file $DIR/audio/notifications
-			fi
-		done
+		echo $orig_file >> $DIR/audio/notifications/.replace
 	done
 	echo "Done!"
 	echo "Sorting Duplicate ringtone files..."
@@ -406,19 +388,10 @@ sort_duplicates () {
 	then
 		mkdir $DIR/audio/ringtones
 	fi
-	tmp_rings=$TDIR/audio/ringtones
 	orig_rings=/system/media/audio/ringtones
 	for orig_file in $orig_rings/*
 	do
-		for tmp_file in $tmp_rings/*
-		do
-			if [ "$tmp_file" == "$orig_file" ]
-			then
-				rm -f $tmp_file
-			else
-				cp -f $tmp_file $DIR/audio/ringtones
-			fi
-		done
+		echo $orig_file >> $DIR/audio/ringtones/.replace
 	done
 	echo "Done!"
 	echo "Sorting Duplicate UI files..."
@@ -426,19 +399,10 @@ sort_duplicates () {
 	then
 		mkdir $DIR/audio/ui
 	fi
-	tmp_ui=$TDIR/audio/ui
 	orig_ui=/system/media/audio/ui
 	for orig_file in $orig_ui/*
 	do
-			for tmp_file in $tmp_ui/*
-			do
-				if [ "$tmp_file" == "$orig_file" ]
-			then
-				rm -f $tmp_file
-			else
-				cp -f $tmp_file $DIR/audio/ui
-			fi
-		done
+		echo $orig_file >> $DIR/audio/ui/.replace
 	done
 	echo "Done!"
 }
