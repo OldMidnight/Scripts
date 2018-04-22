@@ -1,7 +1,17 @@
 #!/system/bin/sh
 alias fstrim="/sbin/.core/busybox/fstrim"
 alias timeout="/sbin/.core/busybox/timeout"
-MISC="/sdcard/MidnightMain/MidnightMisc"
+if [ -d /system/xbin ]; then
+	bin=xbin
+else
+	bin=bin
+fi
+if grep -q 'beta' /sbin/.core/img/MidnightCore/system/$bin/midnight
+then
+	MISC="/sdcard/'MidnightMain(Beta)'/MidnightMisc"
+else
+	MISC="/sdcard/MidnightMain/MidnightMisc"
+fi
 MISCLOG=$MISC/logs
 MISCDUMP=$MISC/dumps
 LOGDATE="$( date | cut -d ' ' -f 1,2,3 | tr " " )"

@@ -215,6 +215,7 @@ case $DNS_CHOICE in
 	echo -e $B"$divider"$N
 	sleep 1
 	unmount_magisk_img
+	exit
 	;;
 esac
 done

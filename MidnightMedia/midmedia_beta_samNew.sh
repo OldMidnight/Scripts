@@ -30,7 +30,7 @@ if [ -f "$LOGFILE" ]; then
 fi
 touch $LOGFILE
 echo "***************************************************" >> $LOGFILE
-echo "******** MidnightCore: MidnightMedia********" >> $LOGFILE
+echo "******** MidnightCore: MidnightMedia(Samsung)********" >> $LOGFILE
 echo "**************** By OldMidnight ***************" >> $LOGFILE
 echo "***************************************************" >> $LOGFILE
 log_handler "Log start."
@@ -76,162 +76,7 @@ else
 fi
 echo "Phase 2 complete..."
 echo "done!"
-preview () {
-	log_handler "Downloading preview animation..."
-	wget -O $TDIR/$PRE2.zip "$LINK2"
-	if [ $? == 0 ]
-	then
-		log_handler "Preview zip downloaded"
-	else
-		log_handler "Preview zip not downloaded!"
-	fi
-	unzip -o $TDIR/$PRE2.zip /system/media/'bootsamsung.qmg' -d "$TDIR"
-	unzip -o $TDIR/$PRE2.zip /system/media/'bootsamsungloop.qmg' -d "$TDIR"
-	unzip -o $TDIR/$PRE2.zip /system/media/'shutdown.qmg' -d "$TDIR" 2>/sdcard/mm.log
-	if [ $? == 0 ]
-	then
-		log_handler "Preview animations unzipped"
-	else
-		log_handler "Preview animations not unzipped"
-	fi
-	mount -o rw,remount -t auto /system
-	if [ $? == 0 ]
-	then
-		log_handler "/system mounted as read/write"
-	else
-		log_handler "/system not mounted"
-	fi
-	if [ ! -d "$MDIR/tmp" ]
-	then
-		mkdir $MDIR/tmp
-	fi
-	mv -f /system/media/'bootsamsung.qmg' $MDIR/tmp 2>/sdcard/mm.log
-	mv -f /system/media/'bootsamsungloop.qmg' $MDIR/tmp 2>/sdcard/mm.log
-	mv -f /system/media/'shutdown.qmg' $MDIR/tmp 2>/sdcard/mm.log
-	if [ $? == 0 ]
-	then
-		log_handler "System bootanimation files moved to $MDIR/tmp"
-	else
-		log_handler "System bootanimation files not moved!"
-	fi
-	cp -f $TDIR/system/media/'bootsamsung.qmg' /system/media 2>/sdcard/mm.log
-	cp -f $TDIR/system/media/'bootsamsungloop.qmg' /system/media 2>/sdcard/mm.log
-	cp -f $TDIR/system/media/'shutdown.qmg' /system/media 2>/sdcard/mm.log
-	if [ $? == 0 ]
-	then
-		log_handler "Preview animation files copied to /system/media"
-	else
-		log_handler "Preview animation files not copied!"
-	fi
-	echo "Loading bootanimation..."
-	sleep 1
-	timeout 10 bootanimation
-	if [ $? == 0 ]
-	then
-		log_handler "Preview animation played"
-	else
-		log_handler "Preview animation did not play!"
-	fi
-	echo 0 > /sys/class/leds/led_g/brightness
-	if [ $? == 0 ]
-	then
-		log_handler "Led turned off"
-	else
-		log_handler "Led not turned off!"
-	fi
-	mv -f /system/media/'bootsamsung.qmg' $MDIR 2>/sdcard/mm.log
-	mv -f /system/media/'bootsamsungloop.qmg' $MDIR 2>/sdcard/mm.log
-	mv -f /system/media/'shutdown.qmg' $MDIR 2>/sdcard/mm.log
-	if [ $? == 0 ]
-	then
-		log_handler "Preview animation moved back to $MDIR"
-	else
-		log_handler "Preview animation not copied back!"
-	fi
-	mv -f $MDIR/tmp/* /system/media 2>/sdcard/mm.log
-	if [ $? == 0 ]
-	then
-		log_handler "System animation restored"
-	else
-		log_handler "System animation not restored!"
-	fi
-	rm /sdcard/mm.log
-	mount -o ro,remount -t auto /system
-	if [ $? == 0 ]
-	then
-		log_handler "/system remounted as read-only"
-	else
-		log_handler "/system not remounted!"
-	fi
-}
-prev_choice () {
-	pvar=0
-	while [ $pvar -le 0 ]
-	do
-		echo "Setting up environment..."
-		log_handler "Setting up preview environment..."
-		cat $TDIR/MDONT-MDELETE-SAM
-		echo -e -n $W'[CHOOSE] : '$N
-		read -r PCHOICE
-		case $PCHOICE in
-			$PCHOICE)
-				LINK2="$( cat $TDIR/MDONT-MDELETE-2-SAM | xargs | cut -d " " -f $PCHOICE )"
-				PRE="$( cat $TDIR/MDONT-MDELETE-SAM | xargs | cut -d "." -f $PCHOICE)"
-				PRE2="$( echo $PRE | cut -d ')' -f 2 | tr -d ' ' )"
-				log_handler "Running preview sequence..."
-				preview
-				echo "Would you like to apply this animation or keep previewing?"
-				echo -e "1) "$B"Apply"$N
-				echo -e "2) "$B"Keep previewing"$N
-				echo -e "3) "$B"Return to menu"$N
-				echo -e -n $W'[CHOOSE] : '$N
-				read -r CH
-				case $CH in
-					1)
-						echo "Applying files..."
-						mount_magisk_img
-						if [ $? == 0 ]
-						then
-							log_handler "Mounted magisk img"
-						else
-							log_handler "Did not mount magisk img!"
-						fi
-						mv -f $MDIR/bootsamsung.qmg $DIR
-						mv -f $MDIR/bootsamsungloop.qmg $DIR
-						mv -f $MDIR/shutdown.qmg $DIR 2>/sdcard/mm.log
-						if [ $? == 0 ]
-						then
-							log_handler "Selected animation moved to module directory"
-						else
-							log_handler "bootanimation not moved to module directory!"
-						fi
-						echo "done!"
-						unmount_magisk_img
-						if [ $? == 0 ]
-						then
-							log_handler "Unmounted magisk img"
-						else
-							log_handler "Did not unmount magisk img!"
-						fi
-						rm -rf $MDIR/tmp
-						pvar=$((pvar + 1))
-						exit
-						;;
-					2)
-						log_handler "Rerunning previews..."
-						clear
-						;;
-					3)
-						log_handler "Returning to menu..."
-						clear
-						pvar=$((pvar + 1))
-						hvar=$((hvar + 1))
-						;;
-				esac
-				;;
-		esac
-	done
-}
+
 dchoice_steps () {
 	clear
 	echo "Retrieving files..."
@@ -244,8 +89,6 @@ dchoice_steps () {
 		log_handler "Media zip not downloaded!"
 	fi
 	echo "Completing step 1..."
-	# GET THE VARIABLE REQSIZEM
-  request_zip_size_check "$MDIR/$MED2.zip"
   # THIS FUNCTION WILL MOUNT $IMG TO $MOUNTPATH, AND RESIZE THE IMAGE BASED ON $REQSIZEM
   mount_magisk_img
 	if [ $? == 0 ]
@@ -292,6 +135,7 @@ dchoice_steps () {
 	fi
 	main=$((main + 1))
 }
+
 sound_choice () {
 	clear
 	echo "Please select a device to get these files from"
@@ -324,6 +168,7 @@ sound_choice () {
 			;;
 	esac
 }
+
 device_choice () {
 	clear
 	echo "Please select a device to get these files from"
@@ -356,56 +201,7 @@ device_choice () {
 			;;
 	esac
 }
-sort_duplicates () {
-	if [ ! -d $DIR/audio ]
-	then
-		mkdir $DIR/audio
-	fi
-	echo "Sorting Duplicate alarm files..."
-	if [ ! -d $DIR/audio/alarms ]
-	then
-		mkdir $DIR/audio/alarms
-	fi
-	orig_alarms=/system/media/audio/alarms
-	for orig_file in $orig_alarms/*
-	do
-		echo $orig_file >> $DIR/audio/alarms/.replace
-	done
-	echo "Done!"
-	echo "Sorting Duplicate notification files..."
-	if [ ! -d $DIR/audio/notifications ]
-	then
-		mkdir $DIR/audio/notifications
-	fi
-	orig_notifs=/system/media/audio/notifications
-	for orig_file in $orig_notifs/*
-	do
-		echo $orig_file >> $DIR/audio/notifications/.replace
-	done
-	echo "Done!"
-	echo "Sorting Duplicate ringtone files..."
-	if [ ! -d $DIR/audio/ringtones ]
-	then
-		mkdir $DIR/audio/ringtones
-	fi
-	orig_rings=/system/media/audio/ringtones
-	for orig_file in $orig_rings/*
-	do
-		echo $orig_file >> $DIR/audio/ringtones/.replace
-	done
-	echo "Done!"
-	echo "Sorting Duplicate UI files..."
-	if [ ! -d $DIR/audio/ui ]
-	then
-		mkdir $DIR/audio/ui
-	fi
-	orig_ui=/system/media/audio/ui
-	for orig_file in $orig_ui/*
-	do
-		echo $orig_file >> $DIR/audio/ui/.replace
-	done
-	echo "Done!"
-}
+
 sort_zip () {
 	if [ "$INPUT" == "b" ]
 	then
@@ -428,7 +224,12 @@ sort_zip () {
 	elif [ "$INPUT" == "s" ]
 	then
 		log_handler "Sorting duplicate audio files..."
-		sort_duplicates
+		if [ -d $DIR/audio ]; then
+			rm -rf $DIR/audio
+		fi
+		mkdir $DIR/audio
+		cp -r $TDIR/audio $DIR
+		touch $DIR/audio/.replace
 		if [ $? == 0 ]
 		then
 			log_handler "Duplicated files sorted"
@@ -459,9 +260,10 @@ sort_zip () {
 		fi
 	fi
 }
-. $MDIR/med_functions_beta.sh
+
+. $MDIR/med_functions.sh
 log_handler "Removing main script..."
-rm -f $MDIR/med_functions_beta.sh
+rm -f $MDIR/med_functions.sh
 if [ $? == 0 ]
 		then
 			log_handler "File removed"
