@@ -1,13 +1,35 @@
 #!/system/bin/sh
+ID='MidnightCore'
+
 alias wget="/sbin/.core/busybox/wget"
 alias unzip="/sbin/.core/busybox/unzip"
 alias awk="/sbin/.core/busybox/awk"
+alias df="/sbin/.core/busybox/df"
+alias mount="/sbin/.core/busybox/mount"
 
 MDIR="/sdcard/MidnightMain/MidnightMedia"
 TDIR="$MDIR/tmp_media"
 DIR="/sbin/.core/img/MidnightCore/system/media"
 LOGFILE=/cache/midmedia.log
 LASTLOGFILE=/cache/midmedia_last.log
+
+# Magisk Mod Directory
+MOUNTPATH=/magisk
+if [ ! -d $MOUNTPATH ]; then
+	if [ -d /sbin/.core/img ]; then
+		MOUNTPATH=/sbin/.core/img
+	fi
+fi
+MODDIR="$MOUNTPATH/$ID"
+if [ ! -d $MODDIR ]; then
+	if [ -d /sbin/.core/img/$ID ]; then
+		MODDIR=/sbin/.core/img/$ID
+	else
+		echo "Module not detected!"
+		exit 1
+	fi
+fi
+
 divider='======================================================' > /dev/null 2>&1
 #
 BL='\e[01;90m' > /dev/null 2>&1; # Black
@@ -34,26 +56,53 @@ echo "**************** By OldMidnight ***************" >> $LOGFILE
 echo "***************************************************" >> $LOGFILE
 log_handler "Log start."
 
-. /sbin/.core/mirror/bin/util_functions.sh
+# Import util_functions.sh
+[ -f /data/adb/magisk/util_functions.sh ] && . /data/adb/magisk/util_functions.sh || exit 1
+
+mount -o remount,rw $MOUNTPATH
+mount -o rw,remount $MOUNTPATH
+mount -o remount,rw /cache
+mount -o rw,remount /cache
+
+free_space="$(df -m $MOUNTPATH | tail -n1 | awk '{print $4}')"
+total_space="$(df -m $MOUNTPATH | tail -n1 | awk '{print $2}')"
+
+chk_file_size() {
+  dir_file=$(echo $1)
+  if [ $(du -m $dir_file | awk '{print $1}') -gt $free_space ]; then
+    echo " Checking file size"
+    echo " - Insufficient $MOUNTPATH space!"
+    echo " - Using magisk_merge.img to merge images..."
+    merge_img ${dir_file}
+  else
+    echo " Checking file size - ${W}$(du -m $dir_file | awk '{print $1}')M${N}"
+  fi
+}
+
+# Merge
+merge_img() {
+  file_size=$(($(du -m $1 | awk '{print $1}')+2))
+  if [ "$(grep_prop minMagisk $MODDIR/module.prop)" -ge "1500" ]; then
+    IMG=/data/adb/magisk_merge.img
+  else
+    IMG=/data/magisk_merge.img
+  fi
+  install_dir=/dev/tmp/${ID}
+  path=/dev/magisk_merge
+  tmpmodpath=$path/${ID}
+  mkdir -p $install_dir
+  reqSizeM=$file_size
+  MOUNTPATH=$path
+  mount_magisk_img  
+  cp -af $MODDIR/. $tmpmodpath
+  MODDIR=$tmpmodpath
+}
+
 if [ ! -d $DIR ]
 then
-	mount_magisk_img
-	if [ $? == 0 ]
-	then
-		log_handler "Magisk img mounted"
-	else
-		log_handler "Magisk img not mounted!"
-	fi
 	cd /sbin/.core/img/MidnightCore/system
 	mkdir media
 	cd /
-	unmount_magisk_img
-	if [ $? == 0 ]
-	then
-		log_handler "Magisk img unmounted"
-	else
-		log_handler "Magisk img not unmounted!"
-	fi
 fi
 clear
 echo "Setting up environment..."
@@ -88,14 +137,6 @@ dchoice_steps () {
 		log_handler "Media zip not downloaded!"
 	fi
 	echo "Completing step 1..."
-  # THIS FUNCTION WILL MOUNT $IMG TO $MOUNTPATH, AND RESIZE THE IMAGE BASED ON $REQSIZEM
-  mount_magisk_img
-	if [ $? == 0 ]
-	then
-		log_handler "Magisk img mounted"
-	else
-		log_handler "Magisk img not mounted!"
-	fi
 	unzip $MDIR/$MED2.zip -d "$TDIR"
 	if [ $? == 0 ]
 	then
@@ -125,13 +166,6 @@ dchoice_steps () {
 	echo -e $Y"$divider"$B
 	echo -e $R"	REBOOT TO APPLY CHANGES!! "$N
 	echo -e $Y"$divider"$B
-	unmount_magisk_img
-	if [ $? == 0 ]
-	then
-		log_handler "Magisk img unmounted"
-	else
-		log_handler "Magisk img not unmounted!"
-	fi
 	main=$((main + 1))
 }
 
@@ -204,6 +238,7 @@ device_choice () {
 sort_zip () {
 	if [ "$INPUT" == "b" ]
 	then
+		chk_file_size "$TDIR"/bootanimation.zip
 		cp -f "$TDIR"/bootanimation.zip "$DIR"
 		if [ $? == 0 ]
 		then
@@ -225,6 +260,7 @@ sort_zip () {
 			rm -rf $DIR/audio
 		fi
 		mkdir $DIR/audio
+		chk_file_size $TDIR/audio
 		cp -r $TDIR/audio $DIR
 		touch $DIR/audio/.replace
 		log_handler "Setting permissions..."
@@ -248,7 +284,8 @@ sort_zip () {
 	then
 		if [ -d "$TDIR/audio" ]
 		then
-			log_handler "Sorting bootanimation amd audio files..."
+			log_handler "Sorting bootanimation and audio files..."
+			chk_file_size $TDIR/bootanimation.zip
 			cp -f $TDIR/bootanimation.zip $DIR
 			chmod 644 $DIR/bootanimation.zip
 			if [ $? == 0 ]
@@ -262,6 +299,7 @@ sort_zip () {
 				rm -rf $DIR/audio
 			fi
 			mkdir $DIR/audio
+			chk_file_size $TDIR/audio
 			cp -r $TDIR/audio $DIR
 			touch $DIR/audio/.replace
 			log_handler "Setting permissions..."
@@ -287,6 +325,7 @@ sort_zip () {
 			read -r BOTH
 			case "$BOTH" in
 				y)
+					chk_file_size $TDIR/bootanimation.zip
 					cp -f "$TDIR"/bootanimation.zip "$DIR"
 					if [ $? == 0 ]
 					then
@@ -317,6 +356,7 @@ sort_zip () {
 						rm -rf $DIR/audio
 					fi
 					mkdir $DIR/audio
+					chk_file_size $TDIR/audio
 					cp -r $TDIR/audio $DIR
 					touch $DIR/audio/.replace
 					chmod 755 $DIR/audio
